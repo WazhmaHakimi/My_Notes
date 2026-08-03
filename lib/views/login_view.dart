@@ -1,30 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:my_notes/firebase_options.dart';
-import 'package:my_notes/views/login_view.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const LoginView(),
-    ),
-  );
-}
-
-class RegisterView extends StatefulWidget {
-  const RegisterView({super.key});
+class LoginView extends StatefulWidget {
+  const LoginView({super.key});
 
   @override
-  State<RegisterView> createState() => _RegisterViewState();
+  State<LoginView> createState() => _LoginViewState();
 }
 
-class _RegisterViewState extends State<RegisterView> {
+class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
 
@@ -48,7 +34,7 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register', style: TextStyle(color: Colors.white)),
+        title: const Text('Login', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
       ),
 
@@ -83,23 +69,20 @@ class _RegisterViewState extends State<RegisterView> {
                   final password = _password.text;
                   try {
                     final userCredential = await FirebaseAuth.instance
-                        .createUserWithEmailAndPassword(
+                        .signInWithEmailAndPassword(
                           email: email,
                           password: password,
                         );
 
                     print(userCredential);
                   } on FirebaseAuthException catch (e) {
-                    if (e.code == 'weak-password') {
-                      print('Weak Password');
-                    } else if (e.code == 'email-already-in-use') {
-                      print('Email is already in used.');
-                    } else if (e.code == 'invalid-email') {
-                      print('Invalid Email');
+                    print(e.code);
+                    if (e.code == 'invalid-credential') {
+                      print('invalid Credential');
                     }
                   }
                 },
-                child: Text('Register'),
+                child: Text('Login'),
               ),
             ],
           );
