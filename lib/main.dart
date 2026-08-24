@@ -12,7 +12,7 @@ void main() {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const HomePage(),
+      home: const LoginView(),
     ),
   );
 }
@@ -37,16 +37,41 @@ class HomePage extends StatelessWidget {
             case ConnectionState.done:
               final user = FirebaseAuth.instance.currentUser;
               if (user?.emailVerified ?? false) {
-                print('You are a verified user');
+                return const Text('Done');
               } else {
-                print('You need to verify your email first.');
+                return const VerifyEmailView();
               }
-              return const Text('Done');
             default:
               return const Text('Loading...');
           }
         },
       ),
+    );
+  }
+}
+
+class VerifyEmailView extends StatefulWidget {
+  const VerifyEmailView({super.key});
+
+  @override
+  State<VerifyEmailView> createState() => _VerifyEmailViewState();
+}
+
+class _VerifyEmailViewState extends State<VerifyEmailView> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text('Please verify your email!'),
+        TextButton(
+          onPressed: () async {
+            final user = FirebaseAuth.instance.currentUser;
+
+            await user?.sendEmailVerification();
+          },
+          child: const Text('Send Email Verification'),
+        ),
+      ],
     );
   }
 }
