@@ -5,7 +5,6 @@ import 'package:my_notes/firebase_options.dart';
 import 'package:my_notes/views/login_view.dart';
 import 'package:my_notes/views/register_view.dart';
 import 'package:my_notes/views/verify_email_view.dart';
-import 'dart:developer' show log;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,8 +16,9 @@ void main() {
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
       home: const HomePage(),
       routes: {
-        '/login': (context) => const LoginView(),
-        '/register': (context) => const RegisterView(),
+        '/login/': (context) => const LoginView(),
+        '/register/': (context) => const RegisterView(),
+        '/notes/': (context) => const NotesView(),
       },
     ),
   );
@@ -53,6 +53,7 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+enum MenuAction { logout }
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
@@ -60,8 +61,6 @@ class NotesView extends StatefulWidget {
   @override
   State<NotesView> createState() => _NotesViewState();
 }
-
-enum MenuAction { logout }
 
 class _NotesViewState extends State<NotesView> {
   @override
