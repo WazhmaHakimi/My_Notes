@@ -1,8 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:my_notes/constants/routes.dart';
-import 'package:my_notes/firebase_options.dart';
+import 'package:my_notes/services/auth/auth_exceptions.dart';
+import 'package:my_notes/services/auth/auth_service.dart';
 import 'dart:developer' show log;
 import 'package:my_notes/utilities/show_dialog_error.dart';
 
@@ -42,9 +41,7 @@ class _LoginViewState extends State<LoginView> {
       ),
 
       body: FutureBuilder(
-        future: Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ),
+        future: AuthService.firebase().initialize(),
         builder: (context, asyncSnapshot) {
           return Column(
             children: [
@@ -71,15 +68,14 @@ class _LoginViewState extends State<LoginView> {
                   final email = _email.text;
                   final password = _password.text;
                   try {
-                    final userCredential = await FirebaseAuth.instance
-                        .signInWithEmailAndPassword(
-                          email: email,
-                          password: password,
-                        );
+                    await AuthService.firebase().logIn(
+                      email: email,
+                      password: password,
+                    );
 
-                    final user = FirebaseAuth.instance.currentUser;
+                    final user = AuthService.firebase().currentUser;
 
-                    if (user?.emailVerified ?? false) {
+                    if (user?.isEmailVerified ?? false) {
                       Navigator.of(
                         context,
                       ).pushNamedAndRemoveUntil(notesRoute, (route) => false);
@@ -89,16 +85,11 @@ class _LoginViewState extends State<LoginView> {
                         (route) => false,
                       );
                     }
-                  } on FirebaseAuthException catch (e) {
-                    log(e.code.toString());
-                    if (e.code == 'invalid-credential') {
-                      await showErrorDialog(context, 'Invalid Credentials');
-                      log('invalid Credential');
-                    } else {
-                      await showErrorDialog(context, 'Error: ${e.code}');
-                    }
-                  } catch (e) {
-                    await showErrorDialog(context, e.toString());
+                  } on InvalidCredentialsException {
+                    await showErrorDialog(context, 'Invalid Credentials');
+                    log('invalid Credential');
+                  } on GenericAuthException {
+                    await showErrorDialog(context, 'Authentication Error');
                   }
                 },
                 child: Text('Login'),
