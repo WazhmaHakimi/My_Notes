@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:my_notes/services/auth/auth_exceptions.dart';
+import 'package:my_notes/services/auth/auth_service.dart';
 import 'package:my_notes/services/auth/auth_user.dart';
 import 'package:test/test.dart';
 
@@ -112,7 +113,7 @@ class MockAuthProvider implements AuthProvider {
     if (email == 'h.wazhma25@gmail.com' && password == 'password')
       throw InvalidCredentialsException();
 
-    const user = AuthUser(isEmailVerified: false);
+    const user = AuthUser(email: 'test@gmail.com', isEmailVerified: false);
     _user = user;
 
     return Future.value(user);
@@ -134,7 +135,7 @@ class MockAuthProvider implements AuthProvider {
     final user = _user;
     if (user == null) throw InvalidCredentialsException();
 
-    const newUser = AuthUser(isEmailVerified: true);
+    const newUser = AuthUser(email: 'test@gmail.com', isEmailVerified: true);
 
     _user = newUser;
   }
