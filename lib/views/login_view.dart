@@ -5,6 +5,7 @@ import 'package:my_notes/services/auth/auth_exceptions.dart';
 import 'package:my_notes/services/auth/auth_service.dart';
 import 'package:my_notes/services/auth/bloc/auth_bloc.dart';
 import 'package:my_notes/services/auth/bloc/auth_event.dart';
+import 'package:my_notes/services/auth/bloc/auth_state.dart';
 import 'dart:developer' show log;
 import 'package:my_notes/utilities/dialogs/error_dialog.dart';
 
@@ -66,22 +67,27 @@ class _LoginViewState extends State<LoginView> {
                   hintText: 'Please enter your password',
                 ),
               ),
-              TextButton(
-                onPressed: () async {
-                  final email = _email.text;
-                  final password = _password.text;
-                  try {
+              BlocListener<AuthBloc, AuthState>(
+                listener: (context, state) async {
+                  if (state is AuthStateLoggedOut) {
+                    if (state.exception is InvalidCredentialsException) {
+                      await showErrorDialog(context, 'Invalid Credentials');
+                    } else if (state.exception is GenericAuthException) {
+                      await showErrorDialog(context, 'Authentication Error!');
+                    }
+                  }
+                },
+                child: TextButton(
+                  onPressed: () async {
+                    final email = _email.text;
+                    final password = _password.text;
+
                     context.read<AuthBloc>().add(
                       AuthEventLogIn(email, password),
                     );
-                  } on InvalidCredentialsException {
-                    await showErrorDialog(context, 'Invalid Credentials');
-                    log('invalid Credential');
-                  } on GenericAuthException {
-                    await showErrorDialog(context, 'Authentication Error');
-                  }
-                },
-                child: Text('Login'),
+                  },
+                  child: Text('Login'),
+                ),
               ),
               TextButton(
                 onPressed: () {
